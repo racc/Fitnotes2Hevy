@@ -1,0 +1,9 @@
+[project]
+name = "fitnotes2hevy"
+version = "0.1.0"
+description = "Convert FitNotes CSV to Strong CSV for import into Hevy"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "pandas>=3.0.3",
+]

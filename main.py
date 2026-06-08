@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 import json
-from config import *
+from config import MAP_PATH, FIT_NOTES_PATH, STRONG_PATH, RESULT_PATH, DEFAULT_TRAINING_TIME, DEFAULT_WORKOUT_NAME, DEFAULT_DURATION, DEFAULT_REST_TIME 
+MAX_ROWS = 1999
 
 if __name__ == "__main__":
 
@@ -9,7 +10,7 @@ if __name__ == "__main__":
         map_fn2strong = json.load(f)
 
     df_fn = pd.read_csv(FIT_NOTES_PATH)
-    df_strong = pd.read_csv(STRONG_PATH, sep = ";")
+    # df_strong = pd.read_csv(STRONG_PATH, sep = ";")
 
     df_fn_mod = df_fn.copy()
     df_fn_mod = df_fn_mod.sort_values("Date")
@@ -36,7 +37,7 @@ if __name__ == "__main__":
 
     df_fn_mod['Seconds'] = np.nan
 
-    df_fn_mod['Notes'] = df_fn_mod['Comment']
+    df_fn_mod['Notes'] = ""
 
     df_fn_mod['Workout Notes'] = np.nan
 
@@ -47,7 +48,19 @@ if __name__ == "__main__":
     df_fn_mod["index"] = df_fn_mod.index
     df_fn_mod = df_fn_mod.sort_values(["index", "training"], ascending=[True, False])
     df_fn_mod.loc[~df_fn_mod.training, ["Set Order", "Weight (kg)", "Reps", "Seconds", "Notes"]] = [
-        "Rest Timer", np.nan, np.nan, DEFAULT_REST_TIME, np.nan
+        np.nan, np.nan, np.nan, DEFAULT_REST_TIME, np.nan
     ]
 
-    df_fn_mod[df_strong.columns].to_csv(RESULT_PATH, index=False)
+    df_final = df_fn_mod.reset_index(drop=True)
+
+    num_chunks = int(np.ceil(len(df_final) / MAX_ROWS))
+
+    for i in range(num_chunks):
+        start = i * MAX_ROWS
+        end = start + MAX_ROWS
+        chunk = df_final.iloc[start:end]
+
+        out_path = RESULT_PATH.replace(".csv", f"_{i+1}.csv")
+        chunk.to_csv(out_path, index=False)
+
+    print(f"Wrote {num_chunks} files, each ≤ {MAX_ROWS} rows.")
