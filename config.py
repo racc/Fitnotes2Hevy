@@ -5,5 +5,5 @@ MAP_PATH = './files/map_fitnotes2strong.json'
 
 DEFAULT_TRAINING_TIME = '18:00:00'
 DEFAULT_WORKOUT_NAME = 'Workout'
-DEFAULT_DURATION = 60 * 60 # Duration of each workout
+DEFAULT_DURATION = "1h" # Duration of each workout
 DEFAULT_REST_TIME = 90
