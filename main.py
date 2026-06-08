@@ -7,8 +7,6 @@ from config import (
     DEFAULT_DURATION, DEFAULT_REST_TIME
 )
 
-MAX_ROWS = 1999
-
 STRONG_COLUMNS = [
     "Date",
     "Workout Name",
@@ -46,6 +44,10 @@ if __name__ == "__main__":
 
     # Map exercise names
     df["Exercise Name"] = df["Exercise"].map(map_fn2strong).fillna("Other")
+    unmapped = sorted(df.loc[df["Exercise Name"] == "Other", "Exercise"].dropna().unique().tolist())
+    print("Unmapped exercises:")
+    for name in unmapped:
+        print(" -", name)
 
     # Base set fields
     df["Weight"] = df["Weight"]
@@ -79,16 +81,5 @@ if __name__ == "__main__":
     # Ensure correct column order
     df_final = df[STRONG_COLUMNS].reset_index(drop=True)
     df_final = df_final[df_final["Exercise Name"] != "Other"]
-    
-    # Split into multiple files
-    num_chunks = int(np.ceil(len(df_final) / MAX_ROWS))
+    df_final.to_csv(RESULT_PATH, index=False, sep=";")
 
-    for i in range(num_chunks):
-        start = i * MAX_ROWS
-        end = start + MAX_ROWS
-        chunk = df_final.iloc[start:end]
-
-        out_path = RESULT_PATH.replace(".csv", f"_{i+1}.csv")
-        chunk.to_csv(out_path, index=False, sep=";")
-
-    print(f"Wrote {num_chunks} files, each ≤ {MAX_ROWS} rows.")
